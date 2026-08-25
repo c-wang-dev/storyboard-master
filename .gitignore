@@ -1,0 +1,23 @@
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+
+# Obsidian 本地配置（不含笔记内容，无需入库）
+.obsidian/
+.obsidian-workspace
+.smart-env/
+.trash/
+
+# 临时与日志
+*.tmp
+*.log
+tmp/
+
+# 敏感配置
+.env
+.env.*
+!*.example
+
+# 私有数据
+data/
+backups/

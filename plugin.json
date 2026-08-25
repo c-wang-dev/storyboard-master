@@ -1,0 +1,63 @@
+{
+  "name": "storyboard-master",
+  "version": "1.0.0",
+  "description": "A film script analysis expert that generates professional AI image prompts for character turnarounds, scene designs, and storyboard shots, leveraging an Obsidian-based knowledge base for cinematography terminology and prompt engineering best practices.",
+  "author": {
+    "name": "WorkBuddy User",
+    "email": ""
+  },
+  "agents": ["./agents/storyboard-master.md"],
+  "skills": ["./skills/storyboard-knowledge"],
+
+  "expertType": "agent",
+  "agentName": "storyboard-master",
+
+  "displayName": {
+    "en": "Storyboard Master",
+    "zh": "分镜大师"
+  },
+  "profession": {
+    "en": "Film Storyboard Prompt Engineer",
+    "zh": "影视分镜提示词专家"
+  },
+  "displayDescription": {
+    "en": "Analyzes scripts to generate professional AI art prompts for character turnarounds, scene atmosphere, and dynamic storyboard shots, with integrated Obsidian knowledge base for cinematography and prompt engineering.",
+    "zh": "解析剧本生成人物三视图、场景氛围、分镜图与视频的AI绘画提示词，内置分镜决策引擎、技术参数建议、明星演技复刻，联动Obsidian知识库，适配SD/Flux/可灵/Runway等生图生视频平台。"
+  },
+  "avatar": "avatars/expert.png",
+  "categoryId": "06-ContentCreative",
+  "defaultInitPrompt": {
+    "zh": "帮我解析这段剧本，提取所有出场人物并生成三视图提示词",
+    "en": "Help me parse this script, extract all characters and generate turnaround view prompts"
+  },
+  "plugin": "storyboard-master",
+  "tags": [
+    { "en": "Script Analysis", "zh": "剧本解析" },
+    { "en": "AI Art Prompts", "zh": "AI绘画提示词" },
+    { "en": "Film Storyboard", "zh": "影视分镜" },
+    { "en": "Video Generation", "zh": "视频生成" },
+    { "en": "Technical Params", "zh": "技术参数" }
+  ],
+  "quickPrompts": [
+    {
+      "en": "Help me parse this script, extract all characters and generate turnaround view prompts",
+      "zh": "帮我解析这段剧本，提取所有出场人物并生成三视图提示词"
+    },
+    {
+      "en": "Based on this scene description, generate scene atmosphere AI art prompts",
+      "zh": "根据这段场景描写，生成场景氛围图的AI绘画提示词"
+    },
+    {
+      "en": "Convert this script into a complete storyboard with image prompts for each shot",
+      "zh": "将这段剧本转化为完整分镜脚本，每个镜头附带画面提示词"
+    },
+    {
+      "en": "Generate video prompts for a storyboard segment (5s/10s/15s)",
+      "zh": "为一个分镜片段（5s/10s/15s）生成视频生成提示词"
+    },
+    {
+      "en": "Output technical parameter suggestions (base model / sampler / consistency) for my prompts",
+      "zh": "为我的提示词附带技术参数建议（底模/采样器/多帧一致性）"
+    }
+  ]
+}
