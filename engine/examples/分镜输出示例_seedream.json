@@ -1,0 +1,41 @@
+{
+  "model": "seedream-5.0-pro",
+  "duration_tier": "15s",
+  "keyframes": 5,
+  "audio_visual_params": {
+    "景别": "近景 / 特写",
+    "角度": "平视",
+    "运镜": "推近",
+    "光影": "硬侧光（半明半暗）",
+    "节奏": "镜头 3~5 秒，少切，留表演气口"
+  },
+  "prompt_pack": {
+    "model_id": "seedream-5.0-pro",
+    "model_name": "即梦 image2（图片 2.0）",
+    "type": "生图",
+    "prompt": "主体人物位于场景，硬侧光（半明半暗）光影，近景 / 特写平视景别视角，推近运镜，写实电影质感，电影级摄影。",
+    "negative_prompt": "",
+    "params": {
+      "景别": "近景 / 特写",
+      "角度": "平视",
+      "运镜": "推近",
+      "光影": "硬侧光（半明半暗）",
+      "节奏": "镜头 3~5 秒，少切，留表演气口",
+      "duration": "15s",
+      "keyframes": 5
+    },
+    "consistency": "参考图机制"
+  },
+  "quality_check": {
+    "passed": true,
+    "total": 12,
+    "issues": [
+      {
+        "item": "3.主体描述",
+        "level": "warn",
+        "advice": "未替换主体占位符"
+      }
+    ]
+  },
+  "degraded": "no_api_key"
+}

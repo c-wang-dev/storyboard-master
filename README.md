@@ -27,13 +27,36 @@ storyboard-master/
 │   ├── 打斗动作库.md / 特效库.md / 转场与片段衔接库.md
 │   ├── 视频学习记录/                # 影视案例五维分析归档（学习笔记）
 │   └── 知识库治理规则.md            # 三层存储、三道闸门、容量红线
+├── engine/                          # ★ 独立 Python 运行器（零依赖）
+│   ├── storyboard/                  #   knowledge / decision / parser / prompts / quality / cli
+│   ├── tests/                       #   决策引擎单元测试（离线可跑）
+│   └── examples/                    #   示例：剧本 → 分镜 JSON
+├── knowledge/                       # 领域知识库（Obsidian Markdown，双链组织）
+│   ├── 分镜决策引擎.md              # 决策表与仲裁规则
+│   ├── 参数速查表.md                # 6 张模型卡（字段化）
+│   ├── 性格范式库.md / 角色微表情库.md
+│   ├── 打斗动作库.md / 特效库.md / 转场与片段衔接库.md
+│   ├── 视频学习记录/                # 影视案例五维分析归档（学习笔记）
+│   └── 知识库治理规则.md            # 三层存储、三道闸门、容量红线
 ├── docs/ARCHITECTURE.md             # 架构说明
 └── examples/                        # 示例输出
 ```
 
 ## 快速开始
 
-本项目以 WorkBuddy / CodeBuddy 智能体（Expert）形式运行：
+### 方式一：Python 运行器（零依赖，clone 即用）
+
+```bash
+cd engine
+python -m storyboard -f examples/示例剧本_镖局夜战.txt --no-llm    # 规则解析，免费离线
+export DEEPSEEK_API_KEY=sk-xxx
+python -m storyboard -f examples/示例剧本_镖局夜战.txt -o 分镜.json # LLM 解析，效果最佳
+python -m unittest discover -s tests -v                            # 运行测试
+```
+
+详见 [engine/README.md](engine/README.md)。
+
+### 方式二：WorkBuddy 智能体（全功能）
 
 1. 将 `agents/` 与 `skills/` 导入 WorkBuddy 专家市场（my-experts/plugins）
 2. 将 `knowledge/` 挂载为 Obsidian 库（启用双链导航）
@@ -56,7 +79,7 @@ Markdown / Obsidian 双链知识库 · 自然语言提示词工程 · 多模型 
 
 ## 许可证
 
-- **代码与配置**（agents/、skills/、docs/）：[MIT](LICENSE)
+- **代码与配置**（engine/、agents/、skills/、docs/）：[MIT](LICENSE)
 - **知识库内容**（knowledge/）：[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.zh)（非商业使用；含影视作品分析，仅供学习研究）
 
 ## 免责声明

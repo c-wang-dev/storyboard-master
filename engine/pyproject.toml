@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storyboard-master-engine"
+version = "0.1.0"
+description = "分镜大师独立运行器：剧本 → 分镜 + 提示词包（知识库驱动，零第三方依赖）"
+requires-python = ">=3.10"
+readme = "README.md"
+license = { text = "MIT" }
+
+[project.scripts]
+storyboard = "storyboard.cli:main"
+
+[tool.setuptools]
+packages = ["storyboard"]
