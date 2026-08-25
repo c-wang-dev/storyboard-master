@@ -47,18 +47,21 @@ def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dic
         parsed, params, cards, model_id, kb["decision"].get("negative_a", [])
     )
 
-    # 3.5 帧级输出（P2）：逐帧提示词 + 一致性建议 + 参数块
-    card = prompts._card(cards, model_id)
-    frame_output = frame.build_frames(
-        parsed, params, grammar_result, shot_sequence, card, duration, keyframes
-    )
-
-    # 3.6 资产层（P0）：角色资产（锚定卡+定妆照+三视图）+ 场景资产（设定图）
+    # 3.5 资产层（P0）：角色资产（锚定卡+定妆照+三视图）+ 场景资产（设定图）
+    # 必须先于帧级输出——帧提示词要注入角色外貌锚定、一致性建议要引用场景图
     character_assets = character.build_character_assets(
         script, kb["archetypes"], model_id, api_key, base_url, llm_model
     )
     scene_assets = scene.build_scene_assets(
         parsed.get("scenes", []), params, model_id, mood=features.get("emotion_tone", "")
+    )
+
+    # 3.6 帧级输出（P2）：逐帧提示词（含外貌锚定）+ 一致性建议（双参考图）+ 参数块
+    card = prompts._card(cards, model_id)
+    frame_output = frame.build_frames(
+        parsed, params, grammar_result, shot_sequence, card, duration, keyframes,
+        character_assets=character_assets,
+        scene_assets=scene_assets,
     )
 
     # 先构建完整结果（供自检），再执行 12 项自检后塞回
