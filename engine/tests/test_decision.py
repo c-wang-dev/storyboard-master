@@ -48,6 +48,45 @@ class TestDecisionEngine(unittest.TestCase):
                             self.kb)
         self.assertIn("远景", p["景别"])
 
+    def test_shot_relation_maps_to_mid(self):
+        """info_focus=关系 应命中中景（双人关系），而非全景（曾被"环境关系"抢先匹配）。"""
+        p = decision.decide({"info_focus": "关系", "content_type": "对白",
+                             "emotion": "平静", "power": "对等",
+                             "move_purpose": "对峙", "emotion_tone": "压抑", "pace": "慢"},
+                            self.kb)
+        self.assertIn("中景", p["景别"])
+
+    def test_full_six_dim_no_none(self):
+        """六维所有候选值查表均不应返回 None（防决策表关键词改动导致的查空回归）。"""
+        info_focus = ["环境", "关系", "动作", "情绪", "细节"]
+        powers = ["强势", "弱势", "对等", "主观", "失衡"]
+        moves = ["追击", "聚焦", "离开", "关联", "不安", "对峙"]
+        tones = ["压抑", "希望", "神秘", "悲怆", "威胁"]
+        content_types = ["对白", "动作", "情绪", "环境", "悬念", "揭示"]
+        for if_ in info_focus:
+            for ct in content_types:
+                feats = {"info_focus": if_, "content_type": ct,
+                         "emotion": "平静", "power": "对等", "move_purpose": "对峙",
+                         "emotion_tone": "神秘", "pace": "中"}
+                p = decision.decide(feats, self.kb)
+                for key in ("景别", "角度", "运镜", "光影", "节奏"):
+                    self.assertIsNotNone(p.get(key), f"{if_}/{ct} 下 {key} 查空")
+        for pw in powers:
+            p = decision.decide({"info_focus": "关系", "content_type": "对白", "emotion": "平静",
+                                 "power": pw, "move_purpose": "对峙", "emotion_tone": "神秘", "pace": "中"},
+                                self.kb)
+            self.assertIsNotNone(p.get("角度"), f"power={pw} 角度查空")
+        for mv in moves:
+            p = decision.decide({"info_focus": "关系", "content_type": "对白", "emotion": "平静",
+                                 "power": "对等", "move_purpose": mv, "emotion_tone": "神秘", "pace": "中"},
+                                self.kb)
+            self.assertIsNotNone(p.get("运镜"), f"move={mv} 运镜查空")
+        for tn in tones:
+            p = decision.decide({"info_focus": "关系", "content_type": "对白", "emotion": "平静",
+                                 "power": "对等", "move_purpose": "对峙", "emotion_tone": tn, "pace": "中"},
+                                self.kb)
+            self.assertIsNotNone(p.get("光影"), f"tone={tn} 光影查空")
+
     def test_angle_by_power(self):
         p = decision.decide({"info_focus": "关系", "content_type": "对白",
                              "emotion": "平静", "power": "强势",

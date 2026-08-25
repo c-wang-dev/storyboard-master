@@ -45,10 +45,12 @@ def decide(features: Dict[str, str], knowledge: Dict[str, Any]) -> Dict[str, Any
         "光影": _lookup(tables.get("light", []), "情绪基调", features.get("emotion_tone", ""), "决策光影"),
     }
 
-    # 节奏表：按内容类型 + 情绪强度
+    # 节奏表：按内容类型（6 类均能命中）→ 情绪强度兜底（爆发→高潮）→ 最终兜底
     rhythm = _lookup(tables.get("rhythm", []), "情绪强度 / 内容", features.get("content_type", ""), "决策节奏")
     if not rhythm:
         rhythm = _lookup(tables.get("rhythm", []), "情绪强度 / 内容", features.get("emotion", ""), "决策节奏")
+    if not rhythm:
+        rhythm = "慢，长镜头留白，氛围铺陈"
     params["节奏"] = rhythm
 
     # 仲裁：情绪基调 > 信息层级 > 权力关系
