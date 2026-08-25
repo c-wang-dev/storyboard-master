@@ -1,35 +1,125 @@
 {
   "model": "seedream-image-v5.0-pro",
   "duration_tier": "10s",
-  "keyframes": 5,
+  "keyframes": 3,
+  "features": {
+    "info_focus": "关系",
+    "emotion": "紧张",
+    "power": "对等",
+    "move_purpose": "对峙",
+    "emotion_tone": "威胁",
+    "pace": "中",
+    "content_type": "对白",
+    "info_point_count": 2,
+    "duration": "10s",
+    "keyframes": 3
+  },
+  "scenes": [
+    {
+      "location": "镖局大院",
+      "time": "深夜"
+    }
+  ],
+  "characters": [
+    "林风",
+    "黑衣人"
+  ],
   "audio_visual_params": {
     "景别": "近景 / 特写",
     "角度": "平视",
     "运镜": "固定机位",
     "光影": "顶光 / 底光",
-    "节奏": "镜头 1~2 秒，快切，动作匹配"
+    "节奏": "镜头 3~5 秒，少切，留表演气口"
   },
+  "grammar": {
+    "场景类型": "对话（对峙变体）",
+    "人物数量": 2,
+    "机位语法": "双人：外反拍/内反拍/过肩；保持关系线一侧",
+    "景别序列": [
+      "全景",
+      "近景",
+      "特写",
+      "大特写"
+    ],
+    "运镜": "固定机位 + 仰拍",
+    "构图": "D 类视角心理 + B 类背拍留白",
+    "节奏": "中（留气口）",
+    "越轴提示": "无越轴风险（单一纵深轴线）",
+    "匹配原则": "位置匹配 + 动作匹配 + 视线匹配（切点在动作中段）"
+  },
+  "shot_sequence": [
+    "全景",
+    "近景",
+    "特写"
+  ],
   "prompt_pack": {
     "model_id": "seedream-image-v5.0-pro",
     "model_name": "Seedream 5.0 Pro（图片 5.0 Pro）",
     "type": "生图",
     "prompt": "林风、黑衣人位于深夜的镖局大院，顶光 / 底光光影，近景 / 特写平视景别视角，固定机位运镜，写实电影质感，电影级摄影。",
-    "negative_prompt": "",
+    "negative_prompt": "deformed, bad anatomy, extra fingers, text, watermark, logo, oversaturated, overexposed, stiff expression, frozen face",
     "params": {
       "景别": "近景 / 特写",
       "角度": "平视",
       "运镜": "固定机位",
       "光影": "顶光 / 底光",
-      "节奏": "镜头 1~2 秒，快切，动作匹配",
+      "节奏": "镜头 3~5 秒，少切，留表演气口",
       "duration": "10s",
-      "keyframes": 5
+      "keyframes": 3
     },
     "consistency": "参考图机制"
   },
+  "frames": [
+    {
+      "index": 1,
+      "shot": "全景",
+      "angle": "平视",
+      "action": "",
+      "prompt": "林风、黑衣人位于深夜的镖局大院，全景平视景别视角，固定机位运镜，顶光 / 底光光影，写实电影质感，电影级摄影。"
+    },
+    {
+      "index": 2,
+      "shot": "近景",
+      "angle": "平视",
+      "action": "",
+      "prompt": "林风、黑衣人位于深夜的镖局大院，近景平视景别视角，固定机位运镜，顶光 / 底光光影，写实电影质感，电影级摄影。"
+    },
+    {
+      "index": 3,
+      "shot": "特写",
+      "angle": "平视",
+      "action": "",
+      "prompt": "林风、黑衣人位于深夜的镖局大院，特写平视景别视角，固定机位运镜，顶光 / 底光光影，写实电影质感，电影级摄影。"
+    }
+  ],
+  "consistency": {
+    "机制": "参考图机制",
+    "建议": [
+      "参考图：角色定妆照（同一张贯穿全分镜）",
+      "上传定妆照作参考图（Seedream ≤10 张锁脸 / 服装 / 道具）"
+    ]
+  },
+  "param_block": {
+    "model_id": "seedream-image-v5.0-pro",
+    "model_name": "Seedream 5.0 Pro（图片 5.0 Pro）",
+    "类型": "生图",
+    "档位": "10s",
+    "图数": 3,
+    "比例": "1:1 / 4:3 / 3:4 / 16:9 / 9:16 / 2:3 / 3:2 / 21:9",
+    "尺寸": "1K / 1.5K / 2K",
+    "负面词": "支持",
+    "提示词公式": "主体 → 服装 → 场景 → 构图 → 相机物理 → 排除+格式"
+  },
+  "degraded": null,
   "quality_check": {
     "passed": true,
     "total": 12,
-    "issues": []
-  },
-  "degraded": null
+    "issues": [
+      {
+        "item": "12.表演一致性",
+        "level": "info",
+        "advice": "角色锚定卡未接入，跳过禁止表演检查"
+      }
+    ]
+  }
 }

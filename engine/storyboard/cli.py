@@ -2,7 +2,7 @@
 
 示例：
     python -m storyboard "深夜，客厅里，张三紧张地环顾四周..." -o out.json
-    python -m storyboard -f script.txt --model seedream-5.0-pro --api-key sk-xxx
+    python -m storyboard -f script.txt --model seedream-image-v5.0-pro --api-key sk-xxx
     python -m storyboard -f script.txt --no-llm          # 强制规则解析（零 API）
 """
 
@@ -14,7 +14,7 @@ import os
 import pathlib
 import sys
 
-from . import decision, grammar, knowledge, parser, prompts, quality
+from . import decision, frame, grammar, knowledge, parser, prompts, quality
 
 DEFAULT_KB = pathlib.Path(__file__).resolve().parents[2] / "knowledge"
 
@@ -43,12 +43,18 @@ def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dic
     shot_sequence = grammar.expand_shots(grammar_result["景别序列"], keyframes)
 
     # 3. 提示词包
-    pack = prompts.generate_prompt_pack(parsed, params, cards, model_id)
+    pack = prompts.generate_prompt_pack(
+        parsed, params, cards, model_id, kb["decision"].get("negative_a", [])
+    )
 
-    # 4. 12 项自检
-    report = quality.check(pack)
+    # 3.5 帧级输出（P2）：逐帧提示词 + 一致性建议 + 参数块
+    card = prompts._card(cards, model_id)
+    frame_output = frame.build_frames(
+        parsed, params, grammar_result, shot_sequence, card, duration, keyframes
+    )
 
-    return {
+    # 先构建完整结果（供自检），再执行 12 项自检后塞回
+    result = {
         "model": pack["model_id"],
         "duration_tier": duration,
         "keyframes": keyframes,
@@ -59,9 +65,14 @@ def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dic
         "grammar": grammar_result,
         "shot_sequence": shot_sequence,
         "prompt_pack": pack,
-        "quality_check": report,
+        "frames": frame_output["frames"],
+        "consistency": frame_output["consistency"],
+        "param_block": frame_output["param_block"],
         "degraded": parsed.get("degraded"),
     }
+    # 4. 12 项自检
+    result["quality_check"] = quality.check(result)
+    return result
 
 
 def _load_env_file(env_path=None) -> None:
@@ -93,7 +104,7 @@ def main(argv=None) -> int:
     ap.add_argument("script", nargs="?", help="剧本文本")
     ap.add_argument("-f", "--file", help="剧本文件路径")
     ap.add_argument("-o", "--output", help="输出 JSON 文件路径")
-    ap.add_argument("--model", default="seedream-5.0-pro", help="模型卡 ID（如 seedream-5.0-pro / seedance-2.5）")
+    ap.add_argument("--model", default="seedream-image-v5.0-pro", help="模型卡 ID（如 seedream-image-v5.0-pro / dreamina-seedance-2-5-260628）")
     ap.add_argument("--kb", default=str(DEFAULT_KB), help="知识库目录（默认 engine 上级的 knowledge/）")
     ap.add_argument("--api-key", default=os.environ.get("DEEPSEEK_API_KEY"), help="LLM API Key（默认读 DEEPSEEK_API_KEY）")
     ap.add_argument("--base-url", default=parser.DEFAULT_BASE_URL, help="LLM API Base URL（OpenAI 兼容）")

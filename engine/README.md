@@ -15,18 +15,20 @@ export DEEPSEEK_API_KEY=sk-xxx
 python -m storyboard -f 剧本.txt -o 分镜.json
 
 # 指定模型卡与输出
-python -m storyboard "深夜，客厅里，张三紧张地环顾四周..." --model seedance-2.5 -o out.json
+python -m storyboard "深夜，客厅里，张三紧张地环顾四周..." --model seedream-image-v5.0-pro -o out.json
 ```
 
 ## 架构
 
 ```
 剧本片段
-  → LLM 解析（parser.py：剧本 → 场景/角色/对白/动作 + 六维特征；失败降级规则解析）
+  → LLM 解析（parser.py：剧本 → 场景/角色/对白/动作 + 六维特征；content_type 六类归一化；失败降级规则解析）
   → 决策引擎（decision.py：六维 → 五表查表 → 仲裁 → 档位 → 图数；纯规则可测）
+  → 电影语法（grammar.py：步骤0 场景类型 → 景别序列 → 机位语法 → 越轴提示）
   → 知识库加载（knowledge.py：运行时解析 ../knowledge/*.md，改 md 即改行为）
   → 提示词生成（prompts.py：按模型卡模板组装提示词包）
-  → 12 项质量自检（quality.py：完整性/模型合规/负面词）
+  → 帧级输出（frame.py：逐帧提示词 + 一致性建议 + 参数块）
+  → 12 项质量自检（quality.py：对齐智能体配置的分镜质量闸门 12 项）
   → 输出 JSON
 ```
 

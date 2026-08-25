@@ -114,19 +114,19 @@ def load_decision_tables(kb_dir) -> Dict[str, Any]:
                     result["keyframes"][tier] = row
             continue
 
-        # 负面词 A 层 / B 层
+        # 负面词 A 层 / B 层（过滤"回填区/只追加"占位符行）
         if heading.startswith("A 层"):
             result["negative_a"] = [
                 {"negative_word": r.get("负面词", ""), "reason": r.get("规避的问题", "")}
                 for r in parse_md_table(body)
-                if r.get("负面词")
+                if r.get("负面词") and "回填区" not in r.get("负面词", "") and "只追加" not in r.get("负面词", "")
             ]
             continue
         if heading.startswith("B 层"):
             result["negative_b"] = [
                 {"pattern": r.get("禁止模式", ""), "reason": r.get("原因", "")}
                 for r in parse_md_table(body)
-                if r.get("禁止模式")
+                if r.get("禁止模式") and "回填区" not in r.get("禁止模式", "") and "只追加" not in r.get("禁止模式", "")
             ]
             continue
 

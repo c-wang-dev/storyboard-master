@@ -20,7 +20,7 @@ def _brand(model_id: str) -> str:
 
 
 def _card(cards: Dict[str, Dict[str, str]], model_id: str) -> Dict[str, str]:
-    """按 model_id（如 seedream-5.0-pro / seedance-2.5）匹配模型卡。
+    """按 model_id（如 seedream-image-v5.0-pro / dreamina-seedance-2-5-260628）匹配模型卡。
 
     匹配顺序：① 规范化子串精确命中（key 或"模型ID"字段）；② 品牌关键词命中；③ 回退第一张。
     """
@@ -88,8 +88,9 @@ def generate_prompt_pack(
     params: Dict[str, str],
     cards: Dict[str, Dict[str, str]],
     model_id: str,
+    negative_a: list = None,
 ) -> Dict[str, Any]:
-    """生成完整提示词包。"""
+    """生成完整提示词包。negative_a 为负面词列表（来自知识库决策引擎 A 层）。"""
     card = _card(cards, model_id)
     features = parsed.get("features", {})
 
@@ -116,7 +117,7 @@ def generate_prompt_pack(
 
     negative = ""
     if "支持" in card.get("负面词", ""):
-        neg_items = [n["negative_word"] for n in params.get("negative_a", [])]
+        neg_items = [n["negative_word"] for n in (negative_a or []) if n.get("negative_word")]
         negative = ", ".join(neg_items) if neg_items else ""
 
     return {

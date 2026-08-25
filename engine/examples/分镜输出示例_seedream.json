@@ -1,7 +1,29 @@
 {
-  "model": "seedream-5.0-pro",
+  "model": "seedream-image-v5.0-pro",
   "duration_tier": "15s",
   "keyframes": 5,
+  "features": {
+    "content_type": "对白",
+    "info_focus": "情绪",
+    "emotion": "平静",
+    "power": "对等",
+    "move_purpose": "聚焦",
+    "emotion_tone": "神秘",
+    "pace": "中",
+    "info_point_count": 4,
+    "duration": "15s",
+    "keyframes": 5
+  },
+  "scenes": [
+    {
+      "location": "未识别（规则解析）",
+      "time": "未识别"
+    }
+  ],
+  "characters": [
+    "林风",
+    "黑衣人"
+  ],
   "audio_visual_params": {
     "景别": "近景 / 特写",
     "角度": "平视",
@@ -9,12 +31,35 @@
     "光影": "硬侧光（半明半暗）",
     "节奏": "镜头 3~5 秒，少切，留表演气口"
   },
+  "grammar": {
+    "场景类型": "对话（对峙变体）",
+    "人物数量": 2,
+    "机位语法": "双人：外反拍/内反拍/过肩；保持关系线一侧",
+    "景别序列": [
+      "全景",
+      "近景",
+      "特写",
+      "大特写"
+    ],
+    "运镜": "固定机位 + 仰拍",
+    "构图": "D 类视角心理 + B 类背拍留白",
+    "节奏": "中（留气口）",
+    "越轴提示": "无越轴风险（单一纵深轴线）",
+    "匹配原则": "位置匹配 + 动作匹配 + 视线匹配（切点在动作中段）"
+  },
+  "shot_sequence": [
+    "全景",
+    "近景",
+    "特写",
+    "大特写",
+    "全景"
+  ],
   "prompt_pack": {
-    "model_id": "seedream-5.0-pro",
-    "model_name": "即梦 image2（图片 2.0）",
+    "model_id": "seedream-image-v5.0-pro",
+    "model_name": "Seedream 5.0 Pro（图片 5.0 Pro）",
     "type": "生图",
-    "prompt": "主体人物位于场景，硬侧光（半明半暗）光影，近景 / 特写平视景别视角，推近运镜，写实电影质感，电影级摄影。",
-    "negative_prompt": "",
+    "prompt": "林风、黑衣人位于场景，硬侧光（半明半暗）光影，近景 / 特写平视景别视角，推近运镜，写实电影质感，电影级摄影。",
+    "negative_prompt": "deformed, bad anatomy, extra fingers, text, watermark, logo, oversaturated, overexposed, stiff expression, frozen face",
     "params": {
       "景别": "近景 / 特写",
       "角度": "平视",
@@ -26,16 +71,71 @@
     },
     "consistency": "参考图机制"
   },
+  "frames": [
+    {
+      "index": 1,
+      "shot": "全景",
+      "angle": "平视",
+      "action": "",
+      "prompt": "林风、黑衣人位于场景，全景平视景别视角，推近运镜，硬侧光（半明半暗）光影，写实电影质感，电影级摄影。"
+    },
+    {
+      "index": 2,
+      "shot": "近景",
+      "angle": "平视",
+      "action": "",
+      "prompt": "林风、黑衣人位于场景，近景平视景别视角，推近运镜，硬侧光（半明半暗）光影，写实电影质感，电影级摄影。"
+    },
+    {
+      "index": 3,
+      "shot": "特写",
+      "angle": "平视",
+      "action": "",
+      "prompt": "林风、黑衣人位于场景，特写平视景别视角，推近运镜，硬侧光（半明半暗）光影，写实电影质感，电影级摄影。"
+    },
+    {
+      "index": 4,
+      "shot": "大特写",
+      "angle": "平视",
+      "action": "",
+      "prompt": "林风、黑衣人位于场景，大特写平视景别视角，推近运镜，硬侧光（半明半暗）光影，写实电影质感，电影级摄影。"
+    },
+    {
+      "index": 5,
+      "shot": "全景",
+      "angle": "平视",
+      "action": "",
+      "prompt": "林风、黑衣人位于场景，全景平视景别视角，推近运镜，硬侧光（半明半暗）光影，写实电影质感，电影级摄影。"
+    }
+  ],
+  "consistency": {
+    "机制": "参考图机制",
+    "建议": [
+      "参考图：角色定妆照（同一张贯穿全分镜）",
+      "上传定妆照作参考图（Seedream ≤10 张锁脸 / 服装 / 道具）"
+    ]
+  },
+  "param_block": {
+    "model_id": "seedream-image-v5.0-pro",
+    "model_name": "Seedream 5.0 Pro（图片 5.0 Pro）",
+    "类型": "生图",
+    "档位": "15s",
+    "图数": 5,
+    "比例": "1:1 / 4:3 / 3:4 / 16:9 / 9:16 / 2:3 / 3:2 / 21:9",
+    "尺寸": "1K / 1.5K / 2K",
+    "负面词": "支持",
+    "提示词公式": "主体 → 服装 → 场景 → 构图 → 相机物理 → 排除+格式"
+  },
+  "degraded": "no_api_key",
   "quality_check": {
     "passed": true,
     "total": 12,
     "issues": [
       {
-        "item": "3.主体描述",
-        "level": "warn",
-        "advice": "未替换主体占位符"
+        "item": "12.表演一致性",
+        "level": "info",
+        "advice": "角色锚定卡未接入，跳过禁止表演检查"
       }
     ]
-  },
-  "degraded": "no_api_key"
+  }
 }
