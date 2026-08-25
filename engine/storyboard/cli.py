@@ -23,9 +23,33 @@ def _load_knowledge(kb_dir):
     return knowledge.load_all(kb_dir)
 
 
-def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dict:
+def _find_binding_table(kb_dir):
+    """自动探测 knowledge/项目绑定/*_角色绑定表.md（取第一个）。"""
+    d = pathlib.Path(kb_dir) / "项目绑定"
+    if d.is_dir():
+        for f in sorted(d.glob("*_角色绑定表.md")):
+            return f
+    return None
+
+
+def _load_binding(kb_dir, binding_path=None) -> dict:
+    """加载绑定表：显式路径优先，否则自动探测。无表返回空 dict。"""
+    if binding_path is None:
+        binding_path = _find_binding_table(kb_dir)
+    if not binding_path:
+        return {}
+    try:
+        text = pathlib.Path(binding_path).read_text(encoding="utf-8")
+        return character.parse_binding_table(text)
+    except Exception:
+        return {}
+
+
+def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model,
+        binding_path=None) -> dict:
     kb = _load_knowledge(kb_dir)
     cards = kb["model_cards"]
+    binding = _load_binding(kb_dir, binding_path)
 
     # 1. 解析剧本（LLM 或规则）
     parsed = parser.parse_script(script, api_key=api_key, base_url=base_url, model=llm_model)
@@ -50,7 +74,7 @@ def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dic
     # 3.5 资产层（P0）：角色资产（锚定卡+定妆照+三视图）+ 场景资产（设定图）
     # 必须先于帧级输出——帧提示词要注入角色外貌锚定、一致性建议要引用场景图
     character_assets = character.build_character_assets(
-        script, kb["archetypes"], model_id, api_key, base_url, llm_model
+        script, kb["archetypes"], model_id, api_key, base_url, llm_model, binding=binding
     )
     scene_assets = scene.build_scene_assets(
         parsed.get("scenes", []), params, model_id, mood=features.get("emotion_tone", "")
@@ -119,6 +143,7 @@ def main(argv=None) -> int:
     ap.add_argument("-o", "--output", help="输出 JSON 文件路径")
     ap.add_argument("--model", default="seedream-image-v5.0-pro", help="模型卡 ID（如 seedream-image-v5.0-pro / dreamina-seedance-2-5-260628）")
     ap.add_argument("--kb", default=str(DEFAULT_KB), help="知识库目录（默认 engine 上级的 knowledge/）")
+    ap.add_argument("--binding", default=None, help="项目角色绑定表路径（默认自动探测 knowledge/项目绑定/）")
     ap.add_argument("--api-key", default=os.environ.get("DEEPSEEK_API_KEY"), help="LLM API Key（默认读 DEEPSEEK_API_KEY）")
     ap.add_argument("--base-url", default=parser.DEFAULT_BASE_URL, help="LLM API Base URL（OpenAI 兼容）")
     ap.add_argument("--llm-model", default=parser.DEFAULT_MODEL, help="LLM 模型名")
@@ -136,7 +161,8 @@ def main(argv=None) -> int:
     api_key = None if args.no_llm else (args.api_key or os.environ.get("DEEPSEEK_API_KEY"))
     base_url = os.environ.get("LLM_BASE_URL") or args.base_url
     llm_model = os.environ.get("LLM_MODEL") or args.llm_model
-    result = run(script, args.model, args.kb, api_key, base_url, llm_model)
+    result = run(script, args.model, args.kb, api_key, base_url, llm_model,
+                 binding_path=args.binding)
 
     if args.output:
         pathlib.Path(args.output).write_text(

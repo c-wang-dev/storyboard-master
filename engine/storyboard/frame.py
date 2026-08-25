@@ -8,22 +8,24 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+from . import scene
 
 
 def _extract_subject_scene(parsed: Dict[str, Any]) -> Tuple[str, str]:
-    """提取主体 / 场景描述（与 prompts.py 规则一致）。"""
+    """提取主体 / 场景描述（与 prompts.py 规则一致，场景名归一化）。"""
     characters = parsed.get("characters", [])
     scenes = parsed.get("scenes", [])
     subject = "、".join(characters[:3]) if characters else "主体人物"
     loc = str(scenes[0].get("location", "")) if scenes else ""
-    scene = "场景"
-    if loc and "未识别" not in loc and "未明确" not in loc and loc != "null":
-        scene = loc
+    scene_name = "场景"
+    if loc and "未识别" not in loc and "未明确" not in loc and "未知" not in loc and loc != "null":
+        scene_name = scene.normalize_location(loc)
         t = str(scenes[0].get("time", "")) if scenes else ""
         if t and "未识别" not in t and "未明确" not in t and t != "null":
-            scene = f"{t}的{scene}"
-    return subject, scene
+            scene_name = f"{t}的{scene_name}"
+    return subject, scene_name
 
 
 def _character_lookup(character_assets: List[Dict[str, Any]]) -> Dict[str, str]:
@@ -100,12 +102,24 @@ def _action_at(actions: List[str], idx: int, total: int, content_type: str) -> s
     return actions[idx % len(actions)]
 
 
+def _negative_for_card(card: Dict[str, str]) -> str:
+    """按模型卡判断负面词段：GPT-Image-2/Seedream 写 in-prompt 段，Flux 不写。"""
+    name = str(card.get("name", ""))
+    model_id = str(card.get("模型ID", "")).lower()
+    if "flux" in model_id or "Flux" in name:
+        return ""
+    if "支持" in card.get("负面词", ""):
+        return " negative prompt: deformed, bad anatomy, extra fingers, cartoon, anime, 3D render, bright lighting, watermark"
+    return ""
+
+
 def _frame_prompt(
-    subject: str, scene: str, action: str,
+    subject: str, scene_name: str, action: str,
     shot: str, angle: str, move: str, light: str,
+    negative: str = "",
 ) -> str:
-    """单帧提示词：主体位于场景 + 动作 + 景别角度 + 运镜 + 光影 + 画质。"""
-    parts = [f"{subject}位于{scene}"]
+    """单帧提示词：主体位于场景 + 动作 + 景别角度 + 运镜 + 光影 + 画质 + 负面词段。"""
+    parts = [f"{subject}位于{scene_name}"]
     if action:
         parts.append(action)
     comp = f"{shot}{angle}" if angle else shot
@@ -116,7 +130,7 @@ def _frame_prompt(
     if light:
         parts.append(f"{light}光影")
     parts.append("写实电影质感，电影级摄影")
-    return "，".join(p for p in parts if p) + "。"
+    return "，".join(p for p in parts if p) + f"。{negative}".strip()
 
 
 def _consistency_advice(card: Dict[str, str]) -> Dict[str, Any]:
@@ -205,6 +219,8 @@ def build_frames(
     - 一致性建议标注「定妆照 + 场景图」双参考图（锁场景全貌）
     """
     subject, scene = _extract_subject_scene(parsed)
+    if scene == "场景" and scene_assets:
+        scene = str(scene_assets[0].get("场景", "场景"))
     char_map = _character_lookup(character_assets)
     subject = _subject_with_appearance(subject, char_map)
     content_type = parsed.get("features", {}).get("content_type", "动作")
@@ -213,6 +229,7 @@ def build_frames(
     angle = params.get("角度", "")
     move = params.get("运镜", "") or grammar_result.get("运镜", "")
     light = params.get("光影", "")
+    negative = _negative_for_card(card)
     total = len(shot_sequence) if shot_sequence else keyframes
 
     frames: List[Dict[str, Any]] = []
@@ -224,7 +241,7 @@ def build_frames(
             "shot": shot,
             "angle": angle,
             "action": action,
-            "prompt": _frame_prompt(subject, scene, action, shot, angle, move, light),
+            "prompt": _frame_prompt(subject, scene, action, shot, angle, move, light, negative),
         })
 
     return {

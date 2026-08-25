@@ -1,11 +1,13 @@
 """角色资产生成（P0 资产层）：正反派判定 → 性格范式匹配 → 角色锚定卡 → 定妆照/三视图提示词。
 
 对应提示词模板.md 的模板 A1（定妆照）/ A2（三视图），数据来源：性格范式库.md。
+支持项目角色绑定表覆盖：绑定角色用表内固定外观（单一来源），禁止 LLM 重新提取（防跨片段漂移）。
 """
 
 from __future__ import annotations
 
 import json
+import re
 import urllib.request
 from typing import Any, Dict, List, Optional
 
@@ -27,6 +29,38 @@ _CHAR_SYSTEM_PROMPT = """你是影视角色分析专家。请从剧本中提取�
   ]
 }
 """
+
+
+def parse_binding_table(text: str) -> Dict[str, Dict[str, str]]:
+    """解析项目角色绑定表 md：剧本角色名 → {范式, 外观}。
+
+    外观是角色外观的单一来源——绑定角色禁止再走 LLM 提取（否则跨片段漂移）。
+    """
+    result: Dict[str, Dict[str, str]] = {}
+    headers: List[str] = []
+    in_table = False
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith("|") and "剧本角色名" in s:
+            in_table = True
+            headers = [h.strip() for h in s.strip("|").split("|")]
+            continue
+        if not in_table or not s.startswith("|") or s.startswith("|---"):
+            continue
+        cells = [c.strip() for c in s.strip("|").split("|")]
+        if len(cells) < len(headers):
+            continue
+        row = dict(zip(headers, cells))
+        name = row.get("剧本角色名", "").strip()
+        if not name or name == "剧本角色名":
+            continue
+        archetype = row.get("角色锚定卡", "").strip()
+        archetype = re.sub(r"[\[\]]", "", archetype)  # 去双链 [[]]
+        if "§" in archetype:
+            archetype = archetype.split("§")[-1].strip()
+        appearance = row.get("外观（定妆照描述）", "").strip()
+        result[name] = {"范式": archetype, "外观": appearance}
+    return result
 
 
 def extract_characters(
@@ -140,16 +174,29 @@ def build_character_assets(
     api_key: Optional[str],
     base_url: str,
     llm_model: str,
+    binding: Optional[Dict[str, Dict[str, str]]] = None,
 ) -> List[Dict[str, Any]]:
-    """完整角色资产：提取 → 锚定卡 → 定妆照 → 三视图。"""
+    """完整角色资产：提取 → 锚定卡 → 定妆照 → 三视图。
+
+    binding: 项目角色绑定表解析结果 {角色名: {范式, 外观}}。
+    绑定的角色用固定范式+外观（单一来源，防跨片段漂移）；未绑定角色走 LLM 提取。
+    """
+    binding = binding or {}
     chars = extract_characters(script, api_key, base_url, llm_model)
     assets = []
     for c in chars:
         name = c.get("name", "未命名角色")
-        arch = _match_archetype(c.get("archetype", ""), archetypes)
-        if not arch:
-            continue
-        appearance = c.get("appearance", "")
+        b = binding.get(name)
+        if b:
+            arch = _match_archetype(b.get("范式", ""), archetypes)
+            if not arch:
+                continue
+            appearance = b.get("外观", "") or c.get("appearance", "")
+        else:
+            arch = _match_archetype(c.get("archetype", ""), archetypes)
+            if not arch:
+                continue
+            appearance = c.get("appearance", "")
         assets.append({
             "name": name,
             "alignment": arch.get("alignment"),
@@ -157,5 +204,7 @@ def build_character_assets(
             "anchor_card": build_anchor_card(name, arch),
             "portrait": generate_portrait_prompt(name, appearance, arch, model_id),
             "turnaround": generate_turnaround_prompt(name, appearance, model_id),
+            "appearance": appearance,
+            "bound": name in binding,  # 标记是否来自绑定表（单一来源）
         })
     return assets
