@@ -99,12 +99,13 @@ def generate_prompt_pack(
     actions = parsed.get("actions", [])
     subject = "、".join(characters[:3]) if characters else "主体人物"
     loc = scenes[0].get("location", "") if scenes else ""
-    if not loc or "未识别" in loc:
+    if not loc or "未识别" in loc or "未明确" in loc or loc == "null":
         scene = "场景"
     else:
         scene = loc
-        if scenes[0].get("time") and "未识别" not in str(scenes[0].get("time", "")):
-            scene = f"{scenes[0].get('time')}的{scene}"
+        t = str(scenes[0].get("time", "")) if scenes else ""
+        if t and "未识别" not in t and "未明确" not in t and t != "null":
+            scene = f"{t}的{scene}"
     action = actions[0] if actions else "行动"
     card_type = card.get("类型", "生图")
 
