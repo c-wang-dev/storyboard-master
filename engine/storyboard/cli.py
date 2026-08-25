@@ -14,7 +14,7 @@ import os
 import pathlib
 import sys
 
-from . import decision, knowledge, parser, prompts, quality
+from . import decision, grammar, knowledge, parser, prompts, quality
 
 DEFAULT_KB = pathlib.Path(__file__).resolve().parents[2] / "knowledge"
 
@@ -38,6 +38,10 @@ def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dic
     features["duration"] = duration
     features["keyframes"] = keyframes
 
+    # 2.5 电影语法判断（步骤 0）+ 景别序列 + 逐帧景别
+    grammar_result = grammar.judge_grammar(features, parsed.get("characters", []))
+    shot_sequence = grammar.expand_shots(grammar_result["景别序列"], keyframes)
+
     # 3. 提示词包
     pack = prompts.generate_prompt_pack(parsed, params, cards, model_id)
 
@@ -52,6 +56,8 @@ def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dic
         "scenes": parsed.get("scenes", []),
         "characters": parsed.get("characters", []),
         "audio_visual_params": {k: v for k, v in params.items() if v},
+        "grammar": grammar_result,
+        "shot_sequence": shot_sequence,
         "prompt_pack": pack,
         "quality_check": report,
         "degraded": parsed.get("degraded"),
