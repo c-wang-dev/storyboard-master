@@ -65,22 +65,72 @@ def generate_image_prompt(
     return _join(parts) + "。"
 
 
+def _audio_recipe(content_type: str, dialogues: list) -> str:
+    """按片段类型取音频配方（音频指令配方库 表二）。台词逐字用剧本原文。"""
+    dlg_lines = []
+    for d in (dialogues or [])[:3]:
+        tx = str(d.get("text", "")).strip()
+        if tx:
+            dlg_lines.append(f'Dialogue:"{tx}"')
+    if content_type == "对白":
+        base = "No BGM（台词驱动，压 BGM）"
+        return ("；".join(dlg_lines) + "，" + base) if dlg_lines else base
+    if content_type == "动作":
+        return "No BGM，动作音效为主（金属碰撞/破风声，剪辑点踩命中帧）"
+    if content_type == "悬念":
+        return "No BGM 或极低频氛围乐（蓄力静默，收尾一刀声）"
+    if content_type in ("情绪", "环境"):
+        return "BGM 描述（氛围乐铺底/渐弱收尾），无对白"
+    return "No BGM"
+
+
+def _time_blocks(content_type: str, duration: str, move: str, shot: str, action: str) -> str:
+    """细化时间戳：按片段类型分 2-4 段（对齐原版模板 D）。"""
+    try:
+        num = int(str(duration).replace("s", "").strip())
+    except (TypeError, ValueError):
+        num = 10
+    if content_type == "动作":
+        pts = [(0, num // 5), (num // 5, num * 3 // 5), (num * 3 // 5, num)]
+    elif content_type == "对白":
+        pts = [(0, num * 3 // 10), (num * 3 // 10, num * 6 // 10), (num * 6 // 10, num)]
+    else:
+        pts = [(0, num // 2), (num // 2, num)]
+    seg = []
+    for a, b in pts:
+        if b > a:
+            seg.append(f"[{a}-{b}s] {move}运镜，{shot}，{action}")
+    return "；".join(seg)
+
+
 def generate_video_prompt(
     features: Dict[str, str], params: Dict[str, str], card: Dict[str, str],
     subject: str = "主体人物", scene: str = "场景", action: str = "行动",
+    dialogues: list = None,
 ) -> str:
-    """生视频提示词：三层结构（概述 + 时间戳分镜 + 一致性）。"""
+    """生视频提示词：对齐模板 D 六块（一句话/时间戳/对白/音频/一致性）。"""
     light = params.get("光影", "")
     move = params.get("运镜", "")
     duration = features.get("duration", "5s")
+    content_type = str(features.get("content_type", "")).strip()
 
     overview = f"{subject}在{scene}中{action}，{light}氛围"
-    storyboard_line = f"0-{duration}：{move}运镜，{params.get('景别', '中景')}，{action}"
-    consistency = "保持角色外观、服装与首帧一致（参考图机制）"
+    blocks = _time_blocks(content_type, duration, move, params.get("景别", "中景"), action)
+    audio = _audio_recipe(content_type, dialogues)
+    dlg = ""
+    if content_type == "对白":
+        dlg_lines = [f'{d.get("speaker", "")}:"{d.get("text", "")}"'
+                     for d in (dialogues or [])[:2] if d.get("speaker") and d.get("text")]
+        if dlg_lines:
+            dlg = "；".join(dlg_lines)
+    consistency = "首帧 @Image1 = 对应分镜图；参考图=角色定妆照+场景设定图（锁身份/服装/场景）"
 
-    if "三层结构" in card.get("写法", ""):
-        return f"{overview}。分镜时间戳：{storyboard_line}。一致性：{consistency}。"
-    return f"{overview}。{storyboard_line}。{consistency}。"
+    parts = [f"【一句话】{overview}", f"【分镜时间戳】{blocks}"]
+    if dlg:
+        parts.append(f"【对白】{dlg}")
+    parts.append(f"【音频】{audio}")
+    parts.append(f"【一致性】{consistency}")
+    return "。".join(parts) + "。"
 
 
 def generate_prompt_pack(
@@ -97,21 +147,34 @@ def generate_prompt_pack(
     # 从解析结果提取主体 / 场景 / 动作（LLM 版有真实值；规则版用占位）
     characters = parsed.get("characters", [])
     scenes = parsed.get("scenes", [])
+    dialogues = parsed.get("dialogues", [])
     actions = parsed.get("actions", [])
     subject = "、".join(characters[:3]) if characters else "主体人物"
     loc = scenes[0].get("location", "") if scenes else ""
-    if not loc or "未识别" in loc or "未明确" in loc or loc == "null":
+    if not loc or "未识别" in loc or "未明确" in loc or "未知" in loc or loc == "null":
         scene = "场景"
     else:
         scene = loc
         t = str(scenes[0].get("time", "")) if scenes else ""
-        if t and "未识别" not in t and "未明确" not in t and t != "null":
+        if t and "未识别" not in t and "未明确" not in t and "未知" not in t and t != "null":
             scene = f"{t}的{scene}"
-    action = actions[0] if actions else "行动"
+    # 对白场景动作取台词（谁道：说什么）；否则用 actions
+    action = actions[0] if actions else ""
+    if not action and dialogues:
+        d0 = dialogues[0]
+        sp = str(d0.get("speaker", "")).strip()
+        tx = str(d0.get("text", "")).strip()
+        if sp and tx:
+            action = f"{sp}道：{tx}"
+    if not action:
+        action = "行动"
     card_type = card.get("类型", "生图")
 
     if card_type == "生视频":
-        prompt = generate_video_prompt(features, params, card, subject, scene, action)
+        prompt = generate_video_prompt(
+            features, params, card, subject, scene, action,
+            dialogues=dialogues,
+        )
     else:
         prompt = generate_image_prompt(features, params, card, subject, scene)
 
