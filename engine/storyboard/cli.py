@@ -49,6 +49,8 @@ def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dic
         "duration_tier": duration,
         "keyframes": keyframes,
         "features": features,
+        "scenes": parsed.get("scenes", []),
+        "characters": parsed.get("characters", []),
         "audio_visual_params": {k: v for k, v in params.items() if v},
         "prompt_pack": pack,
         "quality_check": report,

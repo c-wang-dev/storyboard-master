@@ -166,4 +166,50 @@ def load_all(kb_dir) -> Dict[str, Any]:
     return {
         "decision": load_decision_tables(kb_dir),
         "model_cards": load_model_cards(kb_dir),
+        "archetypes": load_archetypes(kb_dir),
     }
+
+
+# ---------------------------------------------------------------------------
+# 性格范式库加载（性格范式库.md）
+# ---------------------------------------------------------------------------
+
+def load_archetypes(kb_dir) -> Dict[str, Dict[str, Any]]:
+    """解析 性格范式库.md → {范式名: {id, alias, alignment, 核心特征, ...}}。
+
+    正反派依据标题位置（一、反派系 / 二、正派系）。
+    """
+    path = pathlib.Path(kb_dir) / "性格范式库.md"
+    text = path.read_text(encoding="utf-8")
+
+    villain_start = text.find("## 一、反派系")
+    hero_start = text.find("## 二、正派系")
+    if villain_start < 0 or hero_start < 0:
+        return {}
+
+    archetypes: Dict[str, Dict[str, Any]] = {}
+    for sec, align in [(text[villain_start:hero_start], "反派"), (text[hero_start:], "正派")]:
+        for m in re.finditer(r"###\s*(\d+)\.\s*([^\n（(]+)(?:（([^）)]+)）)?\s*\n", sec):
+            num, name, alias = int(m.group(1)), m.group(2).strip().rstrip("型"), (m.group(3) or "").strip()
+            body_start = m.end()
+            nxt = re.search(r"\n###\s", sec[body_start:])
+            body = sec[body_start: body_start + nxt.start()] if nxt else sec[body_start:]
+
+            fields: Dict[str, Any] = {"id": num, "name": name, "alias": alias, "alignment": align}
+            for key in ["核心特征", "标志性微表情", "英文提示词", "禁止表演"]:
+                km = re.search(rf"-\s*\*\*{key}\*\*[：:]\s*(.+)", body)
+                if km:
+                    fields[key] = km.group(1).strip()
+            tm = re.search(r"-\s*\*\*变体标签\*\*[：:]\s*(.+)", body)
+            if tm:
+                fields["tags"] = re.findall(r"#[\u4e00-\u9fa5A-Za-z]+", tm.group(1))
+            em = re.search(r"情绪\s*×\s*程度\*\*[：:](.*?)(?=\n-\s*\*\*英文提示词)", body, re.S)
+            if em:
+                matrix = {}
+                for line in em.group(1).splitlines():
+                    lm = re.match(r"\s*-\s*([^\s（(]+)(?:（[^）)]+）)?[：:]\s*(.+)", line)
+                    if lm:
+                        matrix[lm.group(1).strip()] = lm.group(2).strip()
+                fields["emotion_matrix"] = matrix
+            archetypes[name] = fields
+    return archetypes
