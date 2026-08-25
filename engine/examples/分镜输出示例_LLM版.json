@@ -1,0 +1,35 @@
+{
+  "model": "seedream-image-v5.0-pro",
+  "duration_tier": "10s",
+  "keyframes": 5,
+  "audio_visual_params": {
+    "景别": "近景 / 特写",
+    "角度": "平视",
+    "运镜": "固定机位",
+    "光影": "顶光 / 底光",
+    "节奏": "镜头 1~2 秒，快切，动作匹配"
+  },
+  "prompt_pack": {
+    "model_id": "seedream-image-v5.0-pro",
+    "model_name": "Seedream 5.0 Pro（图片 5.0 Pro）",
+    "type": "生图",
+    "prompt": "林风、黑衣人位于深夜的镖局大院，顶光 / 底光光影，近景 / 特写平视景别视角，固定机位运镜，写实电影质感，电影级摄影。",
+    "negative_prompt": "",
+    "params": {
+      "景别": "近景 / 特写",
+      "角度": "平视",
+      "运镜": "固定机位",
+      "光影": "顶光 / 底光",
+      "节奏": "镜头 1~2 秒，快切，动作匹配",
+      "duration": "10s",
+      "keyframes": 5
+    },
+    "consistency": "参考图机制"
+  },
+  "quality_check": {
+    "passed": true,
+    "total": 12,
+    "issues": []
+  },
+  "degraded": null
+}

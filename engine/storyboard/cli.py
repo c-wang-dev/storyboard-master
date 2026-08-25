@@ -55,7 +55,28 @@ def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dic
     }
 
 
+def _load_env_file(env_path=None) -> None:
+    """从 .env 文件读取环境变量（标准库实现，避免引入 python-dotenv）。
+
+    .env 已被 .gitignore 排除，不会随仓库上传。
+    """
+    if env_path is None:
+        env_path = pathlib.Path(__file__).resolve().parents[1] / ".env"
+    if not pathlib.Path(env_path).is_file():
+        return
+    for line in pathlib.Path(env_path).read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, val = line.partition("=")
+        key = key.strip()
+        val = val.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = val
+
+
 def main(argv=None) -> int:
+    _load_env_file()
     ap = argparse.ArgumentParser(
         prog="storyboard",
         description="分镜大师独立运行器：剧本 → 分镜 + 提示词包（零依赖，仅标准库）",
@@ -79,8 +100,10 @@ def main(argv=None) -> int:
         ap.print_help()
         return 1
 
-    api_key = None if args.no_llm else args.api_key
-    result = run(script, args.model, args.kb, api_key, args.base_url, args.llm_model)
+    api_key = None if args.no_llm else (args.api_key or os.environ.get("DEEPSEEK_API_KEY"))
+    base_url = os.environ.get("LLM_BASE_URL") or args.base_url
+    llm_model = os.environ.get("LLM_MODEL") or args.llm_model
+    result = run(script, args.model, args.kb, api_key, base_url, llm_model)
 
     if args.output:
         pathlib.Path(args.output).write_text(
