@@ -110,16 +110,104 @@
     "负面词": "支持",
     "提示词公式": "主体 → 服装 → 场景 → 构图 → 相机物理 → 排除+格式"
   },
+  "character_assets": [
+    {
+      "name": "林风",
+      "alignment": "正派",
+      "archetype": "隐忍坚毅",
+      "anchor_card": {
+        "角色名": "林风",
+        "性格范式": "隐忍坚毅",
+        "正反派": "正派",
+        "人格类型": "压抑悲愤、隐忍负重，情绪憋在心里，眼神坚定但有痛。",
+        "标志微表情": "眉心常蹙、眼神坚定向下或直视；悲伤时眼睑半垂、嘴角极轻微颤抖；愤怒时下颌绷紧、拳头攥紧但不出声。",
+        "情绪矩阵": "{\"开心\": \"难得的真笑，眼角微弯(轻) → 释然的笑、肩膀放松(中)\", \"怒\": \"眼神变硬、抿嘴(轻) → 下颌绷紧、拳头攥紧(中) → 声音发颤的质问(重) → 极罕见爆发，一旦爆发痛彻心扉(爆发)\", \"悲\": \"眼睑半垂、嘴角微颤(轻) → 眼角含泪强忍(中) → 无声落泪(重) → 崩溃痛哭(爆发)\", \"惧\": \"呼吸微乱、瞳孔微缩(轻) → 强撑不退、身体绷紧(中)\"}",
+        "英文提示词": "`repressed grief, resolute gaze, clenched jaw, trembling lip, silent tears, stoic endurance`",
+        "禁止表演": "轻浮嬉笑、夸张咆哮、轻易落泪",
+        "常驻声明": "✓ 全片常驻"
+      },
+      "portrait": {
+        "类型": "定妆照",
+        "模型": "seedream-image-v5.0-pro",
+        "角色": "林风",
+        "外观": "三十岁左右，身材高大，国字脸，浓眉大眼，短发，身着灰色劲装，腰佩长刀。",
+        "表情（锚定卡标志微表情）": "眉心常蹙、眼神坚定向下或直视；悲伤时眼睑半垂、嘴角极轻微颤抖；愤怒时下颌绷紧、拳头攥紧但不出声。",
+        "提示词": "A front-facing character portrait, head and shoulders composition, looking at viewer: 三十岁左右，身材高大，国字脸，浓眉大眼，短发，身着灰色劲装，腰佩长刀。, 眉心常蹙、眼神坚定向下或直视；悲伤时眼睑半垂、嘴角极轻微颤抖；愤怒时下颌绷紧、拳头攥紧但不出声。, even frontal lighting on the face, clean plain background, portrait photography, 85mm lens, shallow depth of field.",
+        "比例": "3:4",
+        "尺寸": "2K",
+        "负面词": "deformed, bad anatomy, extra fingers, smiling, exaggerated expression, open-mouth shouting",
+        "一致性要点": "正脸、无遮挡、均匀打光，脸占画面 25-40% —— 此张即全片参考图母本"
+      },
+      "turnaround": {
+        "类型": "三视图",
+        "模型": "seedream-image-v5.0-pro",
+        "角色": "林风",
+        "提示词": "A character turnaround reference of the same person, three separate views — front, side, and back — identical face, hair and outfit in all views: 三十岁左右，身材高大，国字脸，浓眉大眼，短发，身着灰色劲装，腰佩长刀。, standing straight, arms at sides, neutral calm expression, plain white background, reference sheet style, clean lines.",
+        "一致性": "上传定妆照作参考图（Seedream 参考图 ≤10 张，用 1 张锁身份）",
+        "比例": "16:9",
+        "尺寸": "2K",
+        "负面词": "deformed, bad anatomy, extra fingers, inconsistent face between views, different outfits",
+        "备注": "三视图不硬出三格：逐视角生成，后期拼版"
+      }
+    },
+    {
+      "name": "黑衣人",
+      "alignment": "反派",
+      "archetype": "阴鸷深沉",
+      "anchor_card": {
+        "角色名": "黑衣人",
+        "性格范式": "阴鸷深沉（冷面谋略）",
+        "正反派": "反派",
+        "人格类型": "不动声色，深不可测，情绪极少外露，让人猜不透。",
+        "标志微表情": "面无表情或眉头微蹙；眼神长时间锁定对方不闪躲；单侧挑眉表示玩味；嘴角几乎不动，说话时下颌动作极小。",
+        "情绪矩阵": "{\"开心\": \"不笑，仅眼神稍缓(轻) → 嘴角极轻微上扬(中) → 冷笑(重)\", \"怒\": \"眉眼下压、眼神变重(轻) → 下颌紧绷、语气转冷(中) → 单侧挑眉+冷笑(重) → 极罕见爆发，一旦爆发摧枯拉朽(爆发)\", \"悲\": \"眼神下移、沉默(轻) → 闭目、喉结微动(中)\", \"惧\": \"几乎不惧，只有\\\"局面失控\\\"时眼神第一次闪动(轻)\"}",
+        "英文提示词": "`stone-faced, unreadable gaze, subtle raised eyebrow, barely perceptible smile, cold intensity, controlled menace`",
+        "禁止表演": "夸张表情、急促语速、慌乱失措",
+        "常驻声明": "✓ 全片常驻"
+      },
+      "portrait": {
+        "类型": "定妆照",
+        "模型": "seedream-image-v5.0-pro",
+        "角色": "黑衣人",
+        "外观": "年龄不详，体型中等，蒙面，只露双眼，身着黑色夜行衣，手持短刃。",
+        "表情（锚定卡标志微表情）": "面无表情或眉头微蹙；眼神长时间锁定对方不闪躲；单侧挑眉表示玩味；嘴角几乎不动，说话时下颌动作极小。",
+        "提示词": "A front-facing character portrait, head and shoulders composition, looking at viewer: 年龄不详，体型中等，蒙面，只露双眼，身着黑色夜行衣，手持短刃。, 面无表情或眉头微蹙；眼神长时间锁定对方不闪躲；单侧挑眉表示玩味；嘴角几乎不动，说话时下颌动作极小。, even frontal lighting on the face, clean plain background, portrait photography, 85mm lens, shallow depth of field.",
+        "比例": "3:4",
+        "尺寸": "2K",
+        "负面词": "deformed, bad anatomy, extra fingers, smiling, exaggerated expression, open-mouth shouting",
+        "一致性要点": "正脸、无遮挡、均匀打光，脸占画面 25-40% —— 此张即全片参考图母本"
+      },
+      "turnaround": {
+        "类型": "三视图",
+        "模型": "seedream-image-v5.0-pro",
+        "角色": "黑衣人",
+        "提示词": "A character turnaround reference of the same person, three separate views — front, side, and back — identical face, hair and outfit in all views: 年龄不详，体型中等，蒙面，只露双眼，身着黑色夜行衣，手持短刃。, standing straight, arms at sides, neutral calm expression, plain white background, reference sheet style, clean lines.",
+        "一致性": "上传定妆照作参考图（Seedream 参考图 ≤10 张，用 1 张锁身份）",
+        "比例": "16:9",
+        "尺寸": "2K",
+        "负面词": "deformed, bad anatomy, extra fingers, inconsistent face between views, different outfits",
+        "备注": "三视图不硬出三格：逐视角生成，后期拼版"
+      }
+    }
+  ],
+  "scene_assets": [
+    {
+      "类型": "场景设定图",
+      "模型": "seedream-image-v5.0-pro",
+      "场景": "镖局大院",
+      "时间": "深夜",
+      "光影": "顶光 / 底光",
+      "情绪基调": "威胁",
+      "提示词": "A wide establishing shot of 镖局大院, 深夜, 顶光 / 底光, 威胁 atmosphere, cinematic composition, rule of thirds, film grain, DSLR.",
+      "比例": "16:9",
+      "尺寸": "2K",
+      "负面词": "deformed architecture, text, watermark, people, daylight, warm colors"
+    }
+  ],
   "degraded": null,
   "quality_check": {
     "passed": true,
     "total": 12,
-    "issues": [
-      {
-        "item": "12.表演一致性",
-        "level": "info",
-        "advice": "角色锚定卡未接入，跳过禁止表演检查"
-      }
-    ]
+    "issues": []
   }
 }

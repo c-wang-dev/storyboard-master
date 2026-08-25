@@ -100,7 +100,13 @@ def check(result: Dict[str, Any]) -> Dict[str, Any]:
     chars = result.get("character_assets", [])
     if not chars:
         issues.append({"item": "12.表演一致性", "level": "info",
-                       "advice": "角色锚定卡未接入，跳过禁止表演检查"})
+                       "advice": "角色锚定卡未接入（无 API Key 或角色未提取），跳过禁止表演检查"})
+    else:
+        missing = [c.get("name", "?") for c in chars
+                   if not c.get("anchor_card", {}).get("禁止表演")]
+        if missing:
+            issues.append({"item": "12.表演一致性", "level": "warn",
+                           "advice": f"角色 {missing} 锚定卡缺禁止表演清单（无法拦截范式外表演）"})
 
     errors = [i for i in issues if i["level"] == "error"]
     return {

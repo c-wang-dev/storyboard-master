@@ -39,20 +39,29 @@ def build_scene_assets(
     scenes: List[Dict[str, Any]],
     params: Dict[str, str],
     model_id: str,
+    mood: str = "",
 ) -> List[Dict[str, str]]:
-    """根据解析的场景列表 + 决策引擎的光影参数，生成场景资产。"""
+    """根据解析的场景列表 + 决策引擎的光影参数，生成场景资产。
+
+    mood 为情绪基调（来自 features.emotion_tone，非决策输出）。同地点+时间去重。
+    """
     assets = []
+    seen = set()
     for sc in scenes:
-        loc = sc.get("location", "")
-        t = sc.get("time", "")
-        if not loc or "未识别" in str(loc) or "未明确" in str(loc):
+        loc = str(sc.get("location", "")).strip()
+        t = str(sc.get("time", "")).strip()
+        if not loc or "未识别" in loc or "未明确" in loc:
             continue
+        key = f"{loc}|{t}"
+        if key in seen:
+            continue
+        seen.add(key)
         assets.append(
             generate_scene_prompt(
                 loc,
                 t,
                 lighting=params.get("光影", ""),
-                mood=params.get("情绪基调", ""),
+                mood=mood,
                 model_id=model_id,
             )
         )

@@ -14,7 +14,7 @@ import os
 import pathlib
 import sys
 
-from . import decision, frame, grammar, knowledge, parser, prompts, quality
+from . import character, decision, frame, grammar, knowledge, parser, prompts, quality, scene
 
 DEFAULT_KB = pathlib.Path(__file__).resolve().parents[2] / "knowledge"
 
@@ -53,6 +53,14 @@ def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dic
         parsed, params, grammar_result, shot_sequence, card, duration, keyframes
     )
 
+    # 3.6 资产层（P0）：角色资产（锚定卡+定妆照+三视图）+ 场景资产（设定图）
+    character_assets = character.build_character_assets(
+        script, kb["archetypes"], model_id, api_key, base_url, llm_model
+    )
+    scene_assets = scene.build_scene_assets(
+        parsed.get("scenes", []), params, model_id, mood=features.get("emotion_tone", "")
+    )
+
     # 先构建完整结果（供自检），再执行 12 项自检后塞回
     result = {
         "model": pack["model_id"],
@@ -68,6 +76,8 @@ def run(script: str, model_id: str, kb_dir, api_key, base_url, llm_model) -> dic
         "frames": frame_output["frames"],
         "consistency": frame_output["consistency"],
         "param_block": frame_output["param_block"],
+        "character_assets": character_assets,
+        "scene_assets": scene_assets,
         "degraded": parsed.get("degraded"),
     }
     # 4. 12 项自检

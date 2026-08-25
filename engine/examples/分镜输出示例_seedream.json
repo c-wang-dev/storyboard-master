@@ -126,6 +126,8 @@
     "负面词": "支持",
     "提示词公式": "主体 → 服装 → 场景 → 构图 → 相机物理 → 排除+格式"
   },
+  "character_assets": [],
+  "scene_assets": [],
   "degraded": "no_api_key",
   "quality_check": {
     "passed": true,
@@ -134,7 +136,7 @@
       {
         "item": "12.表演一致性",
         "level": "info",
-        "advice": "角色锚定卡未接入，跳过禁止表演检查"
+        "advice": "角色锚定卡未接入（无 API Key 或角色未提取），跳过禁止表演检查"
       }
     ]
   }
